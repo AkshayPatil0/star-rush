@@ -1,15 +1,18 @@
 import { AnimatedSprite, Sprite, useTick } from "@pixi/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatedSprite as IAnimatedSprite, Texture } from "pixi.js";
-import { CharacterState } from "../store/character";
-import { updateGameState } from "../store/game";
-import Gun from "./Gun";
 import {
   CHARACTER_DEAD,
   CHARACTER_IDLE,
   CHARACTER_WALK,
-} from "../lib/services/character";
+} from "../lib/constants/character";
 import ghostImg from "../assets/icons/Icon_Ghost.png";
+import gunImage from "../assets/weapons/weaponR1.png";
+import {
+  CharacterState,
+  getGunPositionByCharacter,
+} from "../lib/services/character";
+import muzzleImage from "../assets/extras/muzzle.png";
 
 const useTextures = (images: string[]) => {
   return useMemo(() => images.map((img) => Texture.from(img)), [images]);
@@ -26,19 +29,7 @@ const Character: React.FC<{ character: CharacterState }> = ({ character }) => {
   } | null>(null);
   const charRef = useRef<IAnimatedSprite | null>(null);
 
-  useEffect(() => {
-    updateGameState(({ stars }) => ({
-      stars: stars.filter((star) => {
-        const dx = star.x - character.x;
-        const dy = star.y - character.y;
-        if (Math.sqrt(dx * dx + dy * dy) < 30) {
-          updateGameState(({ score }) => ({ score: score + 1 }));
-          return false;
-        }
-        return true;
-      }),
-    }));
-  }, [character]);
+  const isDead = character.health <= 0;
 
   useEffect(() => {
     if (charRef.current) {
@@ -46,22 +37,16 @@ const Character: React.FC<{ character: CharacterState }> = ({ character }) => {
         charRef.current.play(); // Ensure animation keeps playing
       }
     }
-  }, [character.isMoving, character.isDead]);
+  }, [character.isMoving, isDead]);
 
   const textures = useMemo(() => {
-    if (character.isDead) return deadTextures;
+    if (isDead) return deadTextures;
     if (character.isMoving) return walkTextures;
     return idleTextures;
-  }, [
-    character.isMoving,
-    character.isDead,
-    walkTextures,
-    deadTextures,
-    idleTextures,
-  ]);
+  }, [character.isMoving, isDead, walkTextures, deadTextures, idleTextures]);
 
   useTick((delta) => {
-    if (!character.isDead) return;
+    if (!isDead) return;
     setGhost((prev) => {
       const start = { y: character.y - 30, dir: 1 };
       if (!prev) return start;
@@ -84,10 +69,10 @@ const Character: React.FC<{ character: CharacterState }> = ({ character }) => {
         y={character.y}
         anchor={{ x: 0.5, y: 0.75 }}
         scale={{ x: character.direction * 0.1, y: 0.1 }}
-        loop={!character.isDead}
-        tint={character.isDead ? 0x555555 : 0xffffff}
+        loop={!isDead}
+        tint={isDead ? 0x555555 : 0xffffff}
       />
-      {character.isDead && (
+      {isDead && (
         <Sprite
           image={ghostImg}
           x={character.x}
@@ -96,7 +81,7 @@ const Character: React.FC<{ character: CharacterState }> = ({ character }) => {
           scale={0.15}
         />
       )}
-      <Gun />
+      {!isDead && <Gun character={character} />}
       {/* <Graphics
         draw={(g) => {
           g.clear();
@@ -104,6 +89,39 @@ const Character: React.FC<{ character: CharacterState }> = ({ character }) => {
           g.drawRect(character.x - 20, character.y - 20, 40, 40);
         }}
       /> */}
+    </>
+  );
+};
+
+const Gun: React.FC<{ character: CharacterState }> = ({ character }) => {
+  const { x, y } = getGunPositionByCharacter(character);
+  const rotation =
+    character.direction === -1
+      ? character.gunRotation + Math.PI
+      : character.gunRotation;
+
+  const px = x + 45 * Math.cos(character.gunRotation);
+  const py = y + 45 * Math.sin(character.gunRotation);
+
+  return (
+    <>
+      <Sprite
+        image={gunImage}
+        x={x}
+        y={y}
+        anchor={0.5}
+        scale={{ x: 0.4 * character.direction, y: 0.4 }}
+        rotation={rotation}
+      />
+      <Sprite
+        x={px}
+        y={py}
+        image={muzzleImage}
+        anchor={{ x: 0.5, y: 0.6 }}
+        scale={0.5}
+        rotation={rotation}
+        visible={character.isShooting}
+      />
     </>
   );
 };

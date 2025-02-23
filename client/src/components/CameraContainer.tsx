@@ -1,7 +1,6 @@
 import { PropsWithChildren, useEffect } from "react";
 import { Container } from "@pixi/react";
 import { updateGameControls, useGameControls } from "../store/controls";
-import { useCharacter } from "../store/character";
 import {
   VIEWPORT_HEIGHT,
   VIEWPORT_WIDTH,
@@ -9,10 +8,11 @@ import {
   WORLD_WIDTH,
 } from "../lib/constants/game";
 import { clamp } from "../lib/utils/math";
+import { useGameState } from "../store/game";
 
 const CameraContainer: React.FC<PropsWithChildren> = ({ children }) => {
   const { camera } = useGameControls();
-  const character = useCharacter();
+  const { character } = useGameState();
 
   useEffect(() => {
     updateGameControls({

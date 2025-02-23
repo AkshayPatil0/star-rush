@@ -1,9 +1,14 @@
 import { Sprite } from "@pixi/react";
 import projectileImage from "../assets/extras/bullet.png";
 import { useGameState } from "../store/game";
+import { useMemo } from "react";
 
 const Projectiles = () => {
-  const { projectiles } = useGameState();
+  const { character, enemies } = useGameState();
+
+  const projectiles = useMemo(() => {
+    return enemies.flatMap((e) => e.projectiles).concat(character.projectiles);
+  }, [enemies, character]);
   return (
     <>
       {projectiles.map((p, index) => (

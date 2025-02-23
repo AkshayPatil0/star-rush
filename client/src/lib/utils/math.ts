@@ -12,3 +12,15 @@ export const getDistance = (
 
   return { dx, dy, distance };
 };
+
+export const getAngle = (
+  object: { x: number; y: number },
+  target: { x: number; y: number }
+) => {
+  const dx = target.x - object.x;
+  const dy = target.y - object.y;
+
+  const angle = Math.atan2(dy, dx);
+
+  return angle;
+};

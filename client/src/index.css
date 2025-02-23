@@ -1,68 +1,54 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@font-face {
+  font-family: FriendlySans;
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url("./assets/fonts/friendly-sans/FriendlySans-Regular.woff2")
+    format("woff2");
+}
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+@font-face {
+  font-family: FriendlySans;
+  font-style: italic;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url("./assets/fonts/friendly-sans/FriendlySans-Italic.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: Kaph;
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url("./assets/fonts/kaph/Kaph-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Kaph;
+  font-style: italic;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url("./assets/fonts/kaph/Kaph-Italic.woff2") format("woff2");
+}
+
+* {
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+@theme {
+  --font-sans: "FriendlySans", sans-serif;
+  --font-title: Kaph, sans-serif;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+.home {
+  background: url(./assets/backgrounds/Desert_free.gif) no-repeat center;
+  background-size: cover;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.menu-button {
+  background: url(./assets/icons/Icon_Menu.png);
 }

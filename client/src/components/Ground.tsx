@@ -17,14 +17,16 @@ const Ground: React.FC = () => {
         y={0}
         width={WORLD_WIDTH}
         height={WORLD_HEIGHT}
-        tint={0x48525c}
+        // tint={0x48525c}
+        tint={0xfad5a5}
       />
       <Sprite
         texture={backgroundTexture2}
         x={WORLD_WIDTH / 2}
         y={WORLD_HEIGHT / 2}
         anchor={0.5}
-        tint={0x48525c}
+        // tint={0x48525c}
+        tint={0xfad5a5}
       />
       {ObstacleMap.map((obstacle, index) => (
         <ObstacleSprite obstacle={obstacle} key={index} />
@@ -41,7 +43,8 @@ const ObstacleSprite: React.FC<{ obstacle: Obstacle }> = ({ obstacle }) => {
         x={obstacle.x}
         y={obstacle.y}
         anchor={0.5}
-        tint={0x5a6673}
+        // tint={0x5a6673}
+        tint={0xfad5a5}
       />
     </>
   );

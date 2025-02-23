@@ -1,14 +1,11 @@
 import rock1Img from "../../assets/environment/rock1.png";
 import rock2Img from "../../assets/environment/rock2.png";
 import rock3Img from "../../assets/environment/rock3.png";
-import { CHARACTER_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../constants/game";
+import { WORLD_HEIGHT, WORLD_WIDTH } from "../constants/game";
 import { clamp } from "../utils/math";
+import { Entity, isColliding } from "./entity";
 
-export interface Obstacle {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+export interface Obstacle extends Entity {
   image: string;
 }
 
@@ -16,7 +13,10 @@ export class Rock1 implements Obstacle {
   height: number;
   width: number;
   image: string;
-  constructor(public x: number, public y: number) {
+  constructor(
+    public x: number,
+    public y: number
+  ) {
     this.height = 70;
     this.width = 120;
     this.image = rock1Img;
@@ -27,7 +27,10 @@ export class Rock2 implements Obstacle {
   height: number;
   width: number;
   image: string;
-  constructor(public x: number, public y: number) {
+  constructor(
+    public x: number,
+    public y: number
+  ) {
     this.height = 80;
     this.width = 110;
     this.image = rock2Img;
@@ -38,7 +41,10 @@ export class Rock3 implements Obstacle {
   height: number;
   width: number;
   image: string;
-  constructor(public x: number, public y: number) {
+  constructor(
+    public x: number,
+    public y: number
+  ) {
     this.height = 80;
     this.width = 120;
     this.image = rock3Img;
@@ -73,54 +79,31 @@ export const ObstacleMap: Obstacle[] = [
   new Rock3(750, 1100),
 ];
 
-export const isCollidingWithObstacle = (
-  x: number,
-  y: number,
-  size: number
-): boolean => {
-  return ObstacleMap.some((obstacle) => {
-    const { x: ox, y: oy, width, height } = obstacle;
-
-    const hr = width / 2 + size / 2;
-    const vr = height / 2 + size / 2;
-    // Apply ellipse equation
-    const normalizedValue = (x - ox) ** 2 / hr ** 2 + (y - oy) ** 2 / vr ** 2;
-
-    // If <= 1, collision detected
-    return normalizedValue <= 1;
-  });
+export const isCollidingWithObstacle = (obj: Entity): boolean => {
+  return ObstacleMap.some((obstacle) => isColliding(obj, obstacle));
 };
 
-export const boundCharacterMovement = ({
-  x,
-  y,
+export const boundEntityMovement = ({
+  object,
   moveX,
   moveY,
 }: {
-  x: number;
-  y: number;
+  object: Entity;
   moveX: number;
   moveY: number;
 }) => {
-  let newX = clamp(
-    CHARACTER_SIZE / 2,
-    WORLD_WIDTH - CHARACTER_SIZE / 2
-  )(x + moveX);
+  const { x, y, height, width } = object;
+  let newX = clamp(width / 2, WORLD_WIDTH - width / 2)(x + moveX);
 
-  let newY = clamp(
-    CHARACTER_SIZE / 2,
-    WORLD_HEIGHT - CHARACTER_SIZE / 2
-  )(y + moveY);
+  let newY = clamp(height / 2, WORLD_HEIGHT - height / 2)(y + moveY);
 
-  if (isCollidingWithObstacle(x, newY, 40)) {
+  if (isCollidingWithObstacle({ ...object, y: newY })) {
     newY = y;
   }
 
-  if (isCollidingWithObstacle(newX, y, 40)) {
+  if (isCollidingWithObstacle({ ...object, x: newX })) {
     newX = x;
   }
 
-  const isMoving = moveX != 0 || moveY != 0;
-
-  return { x: newX, y: newY, isMoving };
+  return { x: newX, y: newY };
 };
