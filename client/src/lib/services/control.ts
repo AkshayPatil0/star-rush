@@ -1,5 +1,5 @@
+import { CharacterState } from "../../shared/dtos/character";
 import { useGameControls } from "../../store/controls";
-import { CharacterState } from "./character";
 
 export const getMovementFromControl = (
   prevChar: CharacterState,

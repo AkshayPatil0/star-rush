@@ -2,8 +2,11 @@ import { Texture } from "pixi.js";
 import backgroundImage from "../assets/environment/ground_white.png";
 import backgroundImage2 from "../assets/environment/ground2_white.png";
 import { Sprite } from "@pixi/react";
-import { WORLD_HEIGHT, WORLD_WIDTH } from "../lib/constants/game";
-import { Obstacle, ObstacleMap } from "../lib/services/map";
+import { WORLD_HEIGHT, WORLD_WIDTH } from "../shared/constants/game";
+import { Obstacle, ObstacleMap } from "../shared/services/map";
+import obstacle1 from "../assets/environment/rock1.png";
+import obstacle2 from "../assets/environment/rock2.png";
+import obstacle3 from "../assets/environment/rock3.png";
 
 const backgroundTexture = Texture.from(backgroundImage); // Large background image
 const backgroundTexture2 = Texture.from(backgroundImage2); // Large background image
@@ -35,11 +38,17 @@ const Ground: React.FC = () => {
   );
 };
 
+const OBSTACLE_IMG_MAP: Record<number, string> = {
+  1: obstacle1,
+  2: obstacle2,
+  3: obstacle3,
+};
+
 const ObstacleSprite: React.FC<{ obstacle: Obstacle }> = ({ obstacle }) => {
   return (
     <>
       <Sprite
-        image={obstacle.image}
+        image={OBSTACLE_IMG_MAP[obstacle.type]}
         x={obstacle.x}
         y={obstacle.y}
         anchor={0.5}

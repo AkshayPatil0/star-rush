@@ -1,12 +1,16 @@
 import { HTMLAttributes } from "react";
 import { cn } from "../../lib/utils/style";
 import boxOrangeImage from "../../assets/backgrounds/box/Box_Orange_Rounded.png";
+import boxBlueImage from "../../assets/backgrounds/box/Box_Blue_Rounded.png";
+import boxWhiteImage from "../../assets/backgrounds/box/Box_Blank_Rounded.png";
 
 const ImageMap = {
   orange: boxOrangeImage,
+  blue: boxBlueImage,
+  white: boxWhiteImage,
 } as const;
 
-interface BoxProps {
+export interface BoxProps extends HTMLAttributes<HTMLDivElement> {
   color: keyof typeof ImageMap;
 }
 
@@ -15,7 +19,7 @@ export default function Box({
   children,
   className,
   ...otherProps
-}: HTMLAttributes<HTMLDivElement> & BoxProps) {
+}: BoxProps) {
   return (
     <div className={cn("relative z-0", className)} {...otherProps}>
       <img

@@ -1,28 +1,31 @@
-import { useGameControls } from "../../store/controls";
+import { updateGameState, useGameState } from "../../store/game";
+import { characterShoot, moveOwnCharacter } from "./character";
 import {
-  GameState,
-  getNewStarState,
-  StarState,
-  updateGameState,
-  useGameState,
-} from "../../store/game";
-import {
-  CharacterState,
-  getProjectileAnchorByCharacter,
-  getRandomCharacterType,
-  moveOwnCharacter,
-} from "./character";
-import { isColliding } from "./entity";
-import { isCollidingWithObstacle } from "./map";
-import { getNewProjectileState, shooter, moveProjectiles } from "./projectile";
-import { randomPosition, throttle } from "../utils";
-import { getAngle, getDistance } from "../utils/math";
+  randomPosition,
+  throttle,
+  getAngle,
+  getDistance,
+} from "../../shared/utils";
 import {
   CHARACTER_SPEED,
   STAR_COUNT,
   WORLD_HEIGHT,
   WORLD_WIDTH,
-} from "../constants/game";
+} from "../../shared/constants/game";
+import {
+  getNewProjectileState,
+  moveProjectiles,
+  shooter,
+} from "../../shared/services/projectile";
+import { CharacterState } from "../../shared/dtos/character";
+import { isCollidingWithObstacle } from "../../shared/services/map";
+import {
+  getProjectileAnchorByCharacter,
+  getRandomCharacterType,
+} from "../../shared/services/character";
+import { GameState, StarState } from "../../shared/dtos/game-state";
+import { isColliding } from "../../shared/services/entity";
+import { getNewStarState } from "../../shared/services/star";
 
 const updateStarCollection = (
   character: CharacterState,
@@ -45,39 +48,6 @@ const updateStarCollection = (
     characterStars,
     updatedStars,
   };
-};
-
-const characterShooter: ReturnType<typeof shooter> = shooter();
-const characterShoot = (prevChar: CharacterState, delta: number) => {
-  const { keys } = useGameControls.getState();
-
-  if (!keys[" "]) {
-    characterShooter.reset();
-    return { isShooting: false };
-  }
-
-  if (prevChar.ammo <= 0) return { isShooting: false };
-
-  const shot = characterShooter.shoot(
-    {
-      fireRate: prevChar.fireRate,
-      autoMode: prevChar.autoFireMode,
-    },
-    delta
-  );
-  if (shot) {
-    const projectile = getNewProjectileState({
-      anchor: getProjectileAnchorByCharacter(prevChar),
-      angle: prevChar.gunRotation,
-    });
-    return {
-      projectiles: [...prevChar.projectiles, projectile],
-      ammo: prevChar.ammo - 1,
-      isShooting: true,
-    };
-  }
-
-  return { isShooting: false };
 };
 
 const updateOwnCharacter = (prevChar: CharacterState, delta: number) => {
@@ -188,7 +158,8 @@ const updateEnemy = (
 
 const getNewEnemy = (conf: Partial<CharacterState> = {}): CharacterState => {
   return {
-    id: getRandomCharacterType(),
+    id: Math.random().toString(),
+    type: getRandomCharacterType(),
     ...randomPosition(),
     height: 80,
     width: 40,
@@ -220,8 +191,11 @@ const throttledAddEnemy = throttle(addNewEnemy, 5000);
 
 export const gameLoop = (delta: number) => {
   const { character } = useGameState.getState();
+  if (!character) return;
   if (character.health <= 0) return;
+
   updateGameState(({ character, enemies, stars }) => {
+    if (!character) return {};
     const updatedCharacter = updateOwnCharacter(character, delta);
     const updatedEnemies = enemies.map((enemy, i) =>
       updateEnemy(enemy, i, character, delta)
@@ -312,7 +286,8 @@ export const offlineScoreCounter = () => {
 export const getInitialGameState = (): GameState => {
   return {
     character: {
-      id: 4,
+      id: "1",
+      type: 4,
       width: 40,
       height: 80,
       x: WORLD_WIDTH / 2,

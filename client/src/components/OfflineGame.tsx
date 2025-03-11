@@ -1,6 +1,5 @@
 import { Stage, useTick } from "@pixi/react";
-import Game from "../Game";
-import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "../lib/constants/game";
+import Game from "./Game";
 import GameControls from "../components/controls/GameControls";
 import { useEffect, useState } from "react";
 import starImage from "../assets/icons/Icon_Star.png";
@@ -20,6 +19,7 @@ import { resetGameState, updateGameState, useGameState } from "../store/game";
 import Box from "./ui/Box";
 import Button from "./ui/Button";
 import Banner from "./ui/Banner";
+import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "../lib/constants/game";
 
 const scoreCounter = offlineScoreCounter();
 
@@ -54,6 +54,7 @@ export default function OfflineGame() {
 
   useEffect(() => {
     if (gameOver) return;
+    if (!character) return;
     if (character.health <= 0) {
       setGameOver(true);
       const score = scoreCounter.getCount(character);

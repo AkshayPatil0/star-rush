@@ -14,7 +14,6 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as OfflineImport } from './routes/offline'
 import { Route as IndexImport } from './routes/index'
 import { Route as RoomIndexImport } from './routes/room/index'
-import { Route as RoomRoomIdImport } from './routes/room/$roomId'
 
 // Create/Update Routes
 
@@ -36,12 +35,6 @@ const RoomIndexRoute = RoomIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const RoomRoomIdRoute = RoomRoomIdImport.update({
-  id: '/room/$roomId',
-  path: '/room/$roomId',
-  getParentRoute: () => rootRoute,
-} as any)
-
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -60,13 +53,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OfflineImport
       parentRoute: typeof rootRoute
     }
-    '/room/$roomId': {
-      id: '/room/$roomId'
-      path: '/room/$roomId'
-      fullPath: '/room/$roomId'
-      preLoaderRoute: typeof RoomRoomIdImport
-      parentRoute: typeof rootRoute
-    }
     '/room/': {
       id: '/room/'
       path: '/room'
@@ -82,14 +68,12 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/offline': typeof OfflineRoute
-  '/room/$roomId': typeof RoomRoomIdRoute
   '/room': typeof RoomIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/offline': typeof OfflineRoute
-  '/room/$roomId': typeof RoomRoomIdRoute
   '/room': typeof RoomIndexRoute
 }
 
@@ -97,30 +81,27 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/offline': typeof OfflineRoute
-  '/room/$roomId': typeof RoomRoomIdRoute
   '/room/': typeof RoomIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/offline' | '/room/$roomId' | '/room'
+  fullPaths: '/' | '/offline' | '/room'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/offline' | '/room/$roomId' | '/room'
-  id: '__root__' | '/' | '/offline' | '/room/$roomId' | '/room/'
+  to: '/' | '/offline' | '/room'
+  id: '__root__' | '/' | '/offline' | '/room/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OfflineRoute: typeof OfflineRoute
-  RoomRoomIdRoute: typeof RoomRoomIdRoute
   RoomIndexRoute: typeof RoomIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OfflineRoute: OfflineRoute,
-  RoomRoomIdRoute: RoomRoomIdRoute,
   RoomIndexRoute: RoomIndexRoute,
 }
 
@@ -136,7 +117,6 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/offline",
-        "/room/$roomId",
         "/room/"
       ]
     },
@@ -145,9 +125,6 @@ export const routeTree = rootRoute
     },
     "/offline": {
       "filePath": "offline.tsx"
-    },
-    "/room/$roomId": {
-      "filePath": "room/$roomId.tsx"
     },
     "/room/": {
       "filePath": "room/index.tsx"

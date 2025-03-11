@@ -1,49 +1,13 @@
+import { CharacterState } from "../../shared/dtos/character";
+import { boundEntityMovement } from "../../shared/services/map";
 import { useGameControls } from "../../store/controls";
-import { CharacterType } from "../constants/character";
-import { getAngle } from "../utils/math";
-import { WithOnlyRequired } from "../utils/type";
+import { getAngle } from "../../shared/utils";
 import { getMovementFromControl } from "./control";
-import { Entity } from "./entity";
-import { boundEntityMovement } from "./map";
-import { ProjectileState } from "./projectile";
-export interface GunState {
-  fireRate: number;
-  ammo: number;
-  autoFireMode: boolean;
-  gunRotation: number;
-}
-
-export interface CharacterState extends Entity, GunState {
-  id: CharacterType;
-  direction: number;
-  speed: number;
-  isMoving: boolean;
-  health: number;
-  isShooting: boolean;
-  projectiles: ProjectileState[];
-  stars: number;
-  kills: number;
-}
-
-export const getGunPositionByCharacter = (
-  character: WithOnlyRequired<CharacterState, "x" | "y" | "direction">
-) => {
-  const x = character.x + character.direction * 15;
-  const y = character.y + 10;
-  return { x, y };
-};
-
-export const getProjectileAnchorByCharacter = (
-  character: WithOnlyRequired<
-    CharacterState,
-    "x" | "y" | "direction" | "gunRotation"
-  >
-) => {
-  const gun = getGunPositionByCharacter(character);
-  const x = gun.x + 60 * Math.cos(character.gunRotation);
-  const y = gun.y + 60 * Math.sin(character.gunRotation);
-  return { x, y };
-};
+import {
+  getNewProjectileState,
+  shooter,
+} from "../../shared/services/projectile";
+import { getProjectileAnchorByCharacter } from "../../shared/services/character";
 
 export const moveOwnCharacter = (prevChar: CharacterState, delta: number) => {
   const { moveX, moveY, direction } = getMovementFromControl(prevChar, delta);
@@ -69,6 +33,40 @@ const calculateGunRotation = (charPosition: { x: number; y: number }) => {
   return getAngle(charPosition, cursorInput);
 };
 
-export const getRandomCharacterType = () => {
-  return Math.floor(Math.random() * 3 + 1) as CharacterType;
+export const getCharacterId = () => {
+  return sessionStorage.getItem("characterId");
+};
+
+const characterShooter: ReturnType<typeof shooter> = shooter();
+
+export const characterShoot = (prevChar: CharacterState, delta: number) => {
+  const { keys } = useGameControls.getState();
+
+  if (!keys[" "]) {
+    characterShooter.reset();
+    return { isShooting: false };
+  }
+
+  if (prevChar.ammo <= 0) return { isShooting: false };
+
+  const shot = characterShooter.shoot(
+    {
+      fireRate: prevChar.fireRate,
+      autoMode: prevChar.autoFireMode,
+    },
+    delta
+  );
+  if (shot) {
+    const projectile = getNewProjectileState({
+      anchor: getProjectileAnchorByCharacter(prevChar),
+      angle: prevChar.gunRotation,
+    });
+    return {
+      projectiles: [...prevChar.projectiles, projectile],
+      ammo: prevChar.ammo - 1,
+      isShooting: true,
+    };
+  }
+
+  return { isShooting: false };
 };

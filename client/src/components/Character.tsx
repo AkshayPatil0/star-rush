@@ -5,23 +5,21 @@ import {
   CHARACTER_DEAD,
   CHARACTER_IDLE,
   CHARACTER_WALK,
-} from "../lib/constants/character";
+} from "../lib/constants/character-textures";
 import ghostImg from "../assets/icons/Icon_Ghost.png";
 import gunImage from "../assets/weapons/weaponR1.png";
-import {
-  CharacterState,
-  getGunPositionByCharacter,
-} from "../lib/services/character";
+import { getGunPositionByCharacter } from "../shared/services/character";
 import muzzleImage from "../assets/extras/muzzle.png";
+import { CharacterState } from "../shared/dtos/character";
 
 const useTextures = (images: string[]) => {
   return useMemo(() => images.map((img) => Texture.from(img)), [images]);
 };
 
 const Character: React.FC<{ character: CharacterState }> = ({ character }) => {
-  const walkTextures = useTextures(CHARACTER_WALK[character.id]);
-  const idleTextures = useTextures(CHARACTER_IDLE[character.id]);
-  const deadTextures = useTextures(CHARACTER_DEAD[character.id]);
+  const walkTextures = useTextures(CHARACTER_WALK[character.type]);
+  const idleTextures = useTextures(CHARACTER_IDLE[character.type]);
+  const deadTextures = useTextures(CHARACTER_DEAD[character.type]);
 
   const [ghost, setGhost] = useState<{
     y: number;
@@ -37,7 +35,7 @@ const Character: React.FC<{ character: CharacterState }> = ({ character }) => {
         charRef.current.play(); // Ensure animation keeps playing
       }
     }
-  }, [character.isMoving, isDead]);
+  }, [character.isMoving, isDead, character.type]);
 
   const textures = useMemo(() => {
     if (isDead) return deadTextures;

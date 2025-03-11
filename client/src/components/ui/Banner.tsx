@@ -10,7 +10,7 @@ const ImageMap = {
   grey: btnGreyImage,
 } as const;
 
-interface BannerProps extends HTMLAttributes<HTMLHeadingElement> {
+export interface BannerProps extends HTMLAttributes<HTMLHeadingElement> {
   color?: keyof typeof ImageMap;
   children: string;
 }

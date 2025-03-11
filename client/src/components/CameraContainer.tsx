@@ -1,20 +1,17 @@
 import { PropsWithChildren, useEffect } from "react";
 import { Container } from "@pixi/react";
 import { updateGameControls, useGameControls } from "../store/controls";
-import {
-  VIEWPORT_HEIGHT,
-  VIEWPORT_WIDTH,
-  WORLD_HEIGHT,
-  WORLD_WIDTH,
-} from "../lib/constants/game";
-import { clamp } from "../lib/utils/math";
+import { WORLD_HEIGHT, WORLD_WIDTH } from "../shared/constants/game";
+import { clamp } from "../shared/utils";
 import { useGameState } from "../store/game";
+import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "../lib/constants/game";
 
 const CameraContainer: React.FC<PropsWithChildren> = ({ children }) => {
   const { camera } = useGameControls();
   const { character } = useGameState();
 
   useEffect(() => {
+    if (!character) return;
     updateGameControls({
       camera: {
         x: clamp(
