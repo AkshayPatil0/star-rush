@@ -7,16 +7,15 @@ export const getInitialGameState = (): ServerGameState => {
   return {
     stars: [],
     players: {},
+    started: false,
   };
 };
 
 const updateStarCollection = ({
   players,
   stars,
-}: ServerGameState): {
-  players: ServerGameState["players"];
-  stars: ServerGameState["stars"];
-} => {
+  ...other
+}: ServerGameState): ServerGameState => {
   const updatedPlayers = players;
   const updatedStars = stars.map((star) => {
     const playerId = Object.keys(players).find(
@@ -30,6 +29,7 @@ const updateStarCollection = ({
   return {
     stars: updatedStars,
     players: updatedPlayers,
+    ...other,
   };
 };
 

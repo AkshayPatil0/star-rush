@@ -23,7 +23,7 @@ import {
   getProjectileAnchorByCharacter,
   getRandomCharacterType,
 } from "../../shared/services/character";
-import { GameState, StarState } from "../../shared/dtos/game-state";
+import { ClientGameState, StarState } from "../../shared/dtos/game-state";
 import { isColliding } from "../../shared/services/entity";
 import { getNewStarState } from "../../shared/services/star";
 
@@ -156,9 +156,15 @@ const updateEnemy = (
   };
 };
 
+let enemyCounter = 0;
+const getEnemyName = () => {
+  enemyCounter++;
+  return `enemy-${enemyCounter}`;
+};
 const getNewEnemy = (conf: Partial<CharacterState> = {}): CharacterState => {
   return {
     id: Math.random().toString(),
+    name: getEnemyName(),
     type: getRandomCharacterType(),
     ...randomPosition(),
     height: 80,
@@ -283,9 +289,10 @@ export const offlineScoreCounter = () => {
   };
 };
 
-export const getInitialGameState = (): GameState => {
+export const getInitialGameState = (): ClientGameState => {
   return {
     character: {
+      name: "Player",
       id: "1",
       type: 4,
       width: 40,
@@ -307,5 +314,6 @@ export const getInitialGameState = (): GameState => {
     },
     stars: Array.from({ length: STAR_COUNT }, getNewStarState),
     enemies: Array.from({ length: 5 }).map<CharacterState>(() => getNewEnemy()),
+    started: false,
   };
 };

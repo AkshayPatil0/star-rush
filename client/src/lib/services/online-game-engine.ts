@@ -24,6 +24,8 @@ export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   }
 );
 
+// socket.onAny(console.log);
+
 socket.on("connect", () => {
   console.log("connected");
 });
@@ -33,7 +35,7 @@ socket.on("game_started", () => {
 });
 
 socket.on("game_update", (state) => {
-  console.log("game_update", state);
+  // console.log("game_update", state);
   if (!socket.id) throw new Error("Socket not connected !");
   updateGameState(mapServerStateToGameState(state, socket.id));
 });
@@ -52,15 +54,21 @@ socket.on("disconnect", () => {
   socket.removeAllListeners();
 });
 
-export const joinRoom = (roomId: string, player: CharacterState) => {
-  if (!roomId) return;
+export const joinRoom = (roomId: string) => {
+  if (!roomId) throw new Error("RoomId not present !");
   if (!socket.id) throw new Error("Socket not connected !");
-  const playerWithId = {
-    ...player,
+  const player = {
+    ...getInitialCharacterState(),
     id: socket.id,
   };
-  socket.emit("join_room", roomId, playerWithId);
-  return playerWithId;
+  socket.emit("join_room", roomId, player);
+  updateGameState({ character: player });
+};
+
+export const startGame = (roomId: string) => {
+  if (!roomId) throw new Error("RoomId not present !");
+  if (!socket.id) throw new Error("Socket not connected !");
+  socket.emit("start_game", roomId);
 };
 
 export const getInitialCharacterState = (): CharacterState => {
@@ -76,7 +84,7 @@ export const getInitialCharacterState = (): CharacterState => {
     isMoving: false,
     isShooting: false,
     fireRate: 5,
-    ammo: Infinity,
+    ammo: 200,
     autoFireMode: true,
     gunRotation: 0,
     health: 100,
@@ -106,13 +114,14 @@ export const getInitialGameState = (): ClientGameState => {
     character: getInitialCharacterState(),
     enemies: [],
     stars: [],
+    started: false,
   };
 };
 
 export const mapServerStateToGameState = (
   serverState: ServerGameState,
   playerId: string
-): ClientGameState => {
+): Partial<ClientGameState> => {
   const character = serverState.players[playerId];
   delete serverState.players[playerId];
 
@@ -120,5 +129,6 @@ export const mapServerStateToGameState = (
     character,
     stars: serverState.stars,
     enemies: Object.values(serverState.players),
+    started: serverState.started,
   };
 };

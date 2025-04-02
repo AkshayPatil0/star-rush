@@ -3,13 +3,12 @@ import { AppProvider } from "@pixi/react";
 import { useMemo } from "react";
 
 import { Application } from "pixi.js";
-import OnlineGame from "../../components/OnlineGame";
 import { z } from "zod";
 import { zodValidator } from "@tanstack/zod-adapter";
+import OnlineGameContainer from "../../components/online-game";
 
 const roomSearchSchema = z.object({
   roomId: z.string().optional(),
-  stage: z.enum(["room", "character", "lobby", "play"]).default("room"),
 });
 
 export const Route = createFileRoute("/room/")({
@@ -22,7 +21,7 @@ export default function GameContainer() {
 
   return (
     <AppProvider value={app}>
-      <OnlineGame />
+      <OnlineGameContainer />
     </AppProvider>
   );
 }

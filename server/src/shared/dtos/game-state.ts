@@ -12,4 +12,5 @@ export interface ClientGameState {
 export interface ServerGameState {
   stars: StarState[];
   players: Record<string, CharacterState>;
+  started: boolean;
 }

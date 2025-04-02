@@ -9,10 +9,12 @@ import { useGameState } from "../store/game";
 
 const Stats = () => {
   const { character } = useGameState();
+
+  if (!character) return null;
   const { ammo, health, stars, kills } = character;
   return (
     <>
-      <StatItem image={starImage} value={stars.toString()} x={20} y={20} />
+      <StatItem image={starImage} value={stars?.toString()} x={20} y={20} />
       <StatItem
         image={heartImage}
         value={health.toString()}
@@ -24,14 +26,14 @@ const Stats = () => {
       />
       <StatItem
         image={bulletImage}
-        value={ammo.toString()}
+        value={ammo?.toString()}
         x={20}
         y={110}
         getFill={(ammo) =>
           +ammo <= 0 ? "red" : +ammo <= 20 ? "yellow" : "green"
         }
       />
-      <StatItem image={ghostImage} value={kills.toString()} x={20} y={155} />
+      <StatItem image={ghostImage} value={kills?.toString()} x={20} y={155} />
     </>
   );
 };

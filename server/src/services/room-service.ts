@@ -66,3 +66,13 @@ export const removePlayer = (roomId: string, playerId: string) => {
     players: currentRoomState.players,
   });
 };
+
+export const getAllRooms = () => {
+  return Array.from(roomState.entries());
+};
+
+export const startRoomGame = (roomId: string) => {
+  setRoomState(roomId, {
+    started: true,
+  });
+};

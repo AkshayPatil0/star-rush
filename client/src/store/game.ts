@@ -5,6 +5,7 @@ const initialState: ClientGameState = {
   character: null,
   stars: [],
   enemies: [],
+  started: false,
 };
 
 export const useGameState = create<ClientGameState>(() => ({

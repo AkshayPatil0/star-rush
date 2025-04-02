@@ -1,43 +1,36 @@
 import { Stage, useTick } from "@pixi/react";
-import Game from "./Game";
-import GameControls from "./controls/GameControls";
+import Game from "../Game";
+import GameControls from "../controls/GameControls";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { updateGameState, useGameState } from "../store/game";
-import Button from "./ui/Button";
-import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "../lib/constants/game";
-import Input from "./ui/Input";
-import { CharacterState, CharacterType } from "../shared/dtos/character";
-import Character from "./Character";
+import { updateGameState, useGameState } from "../../store/game";
+import Button from "../ui/Button";
+import { VIEWPORT_HEIGHT, VIEWPORT_WIDTH } from "../../lib/constants/game";
+import Input from "../ui/Input";
+import { CharacterState, CharacterType } from "../../shared/dtos/character";
+import Character from "../Character";
 import {
   gameLoop,
   getInitialCharacterState,
   getInitialGameState,
   joinRoom,
-} from "../lib/services/online-game-engine";
-import leftArrowImg from "../assets/icons/Icon_ArrowLeft.png";
-import rightArrowImg from "../assets/icons/Icon_ArrowRight.png";
-import { Route } from "../routes/room";
-import { useCharacterType, useUsername } from "../hooks/persist";
-import { CHARACTER_THUMBNAIL } from "../lib/constants/character-textures";
-import { Dialog, DialogHeader } from "./ui/Dialog";
+  startGame,
+} from "../../lib/services/online-game-engine";
+import leftArrowImg from "../../assets/icons/Icon_ArrowLeft.png";
+import rightArrowImg from "../../assets/icons/Icon_ArrowRight.png";
+import { Route } from "../../routes/room";
+import { useCharacterType, useUsername } from "../../hooks/persist";
+import { CHARACTER_THUMBNAIL } from "../../lib/constants/character-textures";
+import { Dialog, DialogHeader } from "../ui/Dialog";
+import { useStage } from "./stage-context";
 
 export default function OnlineGame() {
-  const { character } = useGameState();
-
-  const { roomId, stage } = Route.useSearch();
+  const { stage } = useStage();
 
   useTick((delta) => {
     if (stage !== "play") return;
     gameLoop(Math.min(delta, 5));
   });
-
-  // const onStart = () => {
-  //   setIsStarted(true);
-  //   setOpen(false);
-  //   setGameOver(false);
-  //   // updateGameState(getInitialGameState());
-  // };
 
   useEffect(() => {
     updateGameState(getInitialGameState());
@@ -58,23 +51,22 @@ export default function OnlineGame() {
 
 const JoinRoomDialog: React.FC = () => {
   const [roomId, setRoomId] = useState("");
-  const { stage } = Route.useSearch();
+  const { stage, setStage } = useStage();
+
   const navigate = useNavigate();
   const onExit = () => {
+    setStage("room");
     navigate({
       to: "/",
-      search: {
-        stage: "room",
-      },
     });
   };
 
   const onJoin = () => {
+    setStage("character");
     navigate({
       to: `/room`,
       search: {
         roomId,
-        stage: "character",
       },
     });
   };
@@ -108,18 +100,14 @@ const JoinRoomDialog: React.FC = () => {
 };
 
 const CharacterSelectDialog: React.FC = () => {
-  const { roomId, stage } = Route.useSearch();
+  const { roomId } = Route.useSearch();
+  const { stage, setStage } = useStage();
+
   const [characterType, setCharacterType] = useCharacterType();
   const [username, setUsername] = useUsername();
 
-  const navigate = useNavigate();
   const onBack = () => {
-    navigate({
-      to: "/room",
-      search: {
-        stage: "room",
-      },
-    });
+    setStage("room");
   };
 
   const onJoinLobby = () => {
@@ -128,15 +116,8 @@ const CharacterSelectDialog: React.FC = () => {
       return;
     }
     if (!username || !characterType) return;
-    const player = joinRoom(roomId, getInitialCharacterState());
-    updateGameState({ character: player });
-    navigate({
-      to: `/room`,
-      search: (prev) => ({
-        ...prev,
-        stage: "lobby",
-      }),
-    });
+    joinRoom(roomId);
+    setStage("lobby");
   };
 
   return (
@@ -173,27 +154,22 @@ const CharacterSelectDialog: React.FC = () => {
 };
 
 const LobbyDialog: React.FC = () => {
-  const { stage } = Route.useSearch();
-  const { character, enemies } = useGameState();
-  const navigate = useNavigate();
+  const { roomId } = Route.useSearch();
+  const { character, enemies, started } = useGameState();
+
+  const { stage, setStage } = useStage();
+
   const onBack = () => {
-    navigate({
-      to: "/room",
-      search: (prev) => ({
-        ...prev,
-        stage: "character",
-      }),
-    });
+    setStage("character");
   };
 
   const onStart = () => {
-    navigate({
-      to: `/room`,
-      search: (prev) => ({
-        ...prev,
-        stage: "play",
-      }),
-    });
+    if (!roomId) {
+      onBack();
+      return;
+    }
+    if (!started) startGame(roomId);
+    setStage("play");
   };
 
   return (
@@ -210,7 +186,7 @@ const LobbyDialog: React.FC = () => {
           Back
         </Button>
         <Button color="orange" className="" onClick={onStart}>
-          Start
+          {started ? "Enter" : "Start"}
         </Button>
       </footer>
     </Dialog>
